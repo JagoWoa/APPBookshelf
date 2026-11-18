@@ -31,6 +31,12 @@ El APK se genera en `app/build/outputs/apk/debug/app-debug.apk`. La aplicación 
 
 ## Cuota de Google Books
 
-La configuración inicial usa las URL públicas del codelab. Si Google rechaza consultas sin identificación o agota la cuota compartida, se puede proporcionar una clave de un proyecto con Books API habilitada mediante la propiedad Gradle `BOOKS_API_KEY` o la variable de entorno del mismo nombre y recompilar. No es necesario modificar el código ni guardar la clave en el repositorio. Las respuestas HTTP 403 y 429 se muestran como un error de acceso/cuota; el botón Reintentar vuelve a solicitar la última búsqueda.
+Copia `.env.example` a `.env` en la raíz del proyecto y completa `BOOKS_API_KEY` con una clave de un proyecto con Books API habilitada. Gradle lee ese archivo al compilar; después de cambiar la clave, recompila e instala el APK actualizado. La propiedad Gradle `BOOKS_API_KEY` tiene prioridad, seguida de la variable de entorno del mismo nombre y finalmente `.env`.
+
+`.env`, las carpetas de compilación, los APK y los archivos de firma están excluidos de Git. `.env.example` contiene únicamente una plantilla vacía y sí puede publicarse. No incluyas la clave en el código, capturas, registros ni commits.
+
+La clave se incorpora a `BuildConfig` para enviar las consultas a Google Books: aunque `.env` no se empaqueta como archivo, la clave puede extraerse del APK. Restringe su uso a Books API en Google Cloud y configura cuotas adecuadas. Guardarla en `.env` evita publicarla en GitHub, pero no la convierte en un secreto dentro de una aplicación distribuida. Si necesitas mantener una credencial totalmente secreta, las consultas deben pasar por un servidor propio.
+
+Las respuestas HTTP 403 y 429 se muestran como un error de acceso/cuota; el botón Reintentar vuelve a solicitar la última búsqueda.
 
 No se agregaron pruebas automatizadas para esta implementación, por indicación del usuario. Los archivos de ejemplo de pruebas de la plantilla original se conservaron.

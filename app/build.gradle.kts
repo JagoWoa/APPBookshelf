@@ -1,7 +1,19 @@
+import java.io.StringReader
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
 }
+
+// Read only at build time; .env is excluded from version control and APK assets.
+// fileContents lets Gradle invalidate the configuration cache when .env changes.
+val localBooksApiKey = providers.fileContents(rootProject.layout.projectDirectory.file(".env"))
+    .asText.map { contents ->
+        Properties().apply {
+            load(StringReader(contents.removePrefix("\uFEFF")))
+        }.getProperty("BOOKS_API_KEY", "").trim().removeSurrounding("\"").removeSurrounding("'")
+    }
 
 android {
     namespace = "com.example.appbookshelf"
@@ -17,6 +29,7 @@ android {
         versionName = "1.0"
         val booksApiKey = providers.gradleProperty("BOOKS_API_KEY")
             .orElse(providers.environmentVariable("BOOKS_API_KEY"))
+            .orElse(localBooksApiKey)
             .getOrElse("")
         buildConfigField("String", "BOOKS_API_KEY", "\"${booksApiKey.replace("\\", "\\\\").replace("\"", "\\\"")}\"")
 
